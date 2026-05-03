@@ -1,0 +1,174 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --font-sans:
+    "Inter",
+    "Aptos",
+    "Segoe UI",
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  --font-mono:
+    ui-monospace,
+    "SFMono-Regular",
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    "Courier New",
+    monospace;
+  --background: #f8f9fc;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #272757;
+  --primary-foreground: #f8f9fc;
+  --secondary: #505081;
+  --secondary-foreground: #ffffff;
+  --muted: #eef0f7;
+  --muted-foreground: #4b5563;
+  --accent: #8686ac;
+  --accent-foreground: #111827;
+  --destructive: #b42318;
+  --border: #d7dced;
+  --input: #d7dced;
+  --ring: #8686ac;
+  --chart-1: #272757;
+  --chart-2: #505081;
+  --chart-3: #8686ac;
+  --chart-4: #0f0e47;
+  --chart-5: #b4b7cf;
+  --radius: 0.625rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #111827;
+  --sidebar-primary: #272757;
+  --sidebar-primary-foreground: #f8f9fc;
+  --sidebar-accent: #eef0f7;
+  --sidebar-accent-foreground: #111827;
+  --sidebar-border: #d7dced;
+  --sidebar-ring: #8686ac;
+}
+
+.dark {
+  --background: #0f0e47;
+  --foreground: #f8f9fc;
+  --card: #1a1a52;
+  --card-foreground: #f8f9fc;
+  --popover: #1a1a52;
+  --popover-foreground: #f8f9fc;
+  --primary: #8686ac;
+  --primary-foreground: #0f0e47;
+  --secondary: #505081;
+  --secondary-foreground: #f8f9fc;
+  --muted: #272757;
+  --muted-foreground: #c7c9dd;
+  --accent: #505081;
+  --accent-foreground: #f8f9fc;
+  --destructive: #ef5f5f;
+  --border: #3c3c73;
+  --input: #3c3c73;
+  --ring: #8686ac;
+  --chart-1: #8686ac;
+  --chart-2: #505081;
+  --chart-3: #272757;
+  --chart-4: #d7dced;
+  --chart-5: #c7c9dd;
+  --sidebar: #1a1a52;
+  --sidebar-foreground: #f8f9fc;
+  --sidebar-primary: #8686ac;
+  --sidebar-primary-foreground: #0f0e47;
+  --sidebar-accent: #272757;
+  --sidebar-accent-foreground: #f8f9fc;
+  --sidebar-border: #3c3c73;
+  --sidebar-ring: #8686ac;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer base {
+  .motion-fade {
+    transition:
+      opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .motion-fade-enter {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .motion-fade-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

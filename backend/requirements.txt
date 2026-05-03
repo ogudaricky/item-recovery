@@ -1,0 +1,8 @@
+Django
+djangorestframework
+psycopg[binary]
+gunicorn
+python-dotenv
+django-cors-headers
+uvicorn
+django-environ
