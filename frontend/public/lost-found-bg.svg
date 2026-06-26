@@ -1,0 +1,53 @@
+<svg width="1600" height="1100" viewBox="0 0 1600 1100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1100" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F172A"/>
+      <stop offset="0.5" stop-color="#1E1B4B"/>
+      <stop offset="1" stop-color="#0C4A6E"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(350 260) rotate(49) scale(440 360)">
+      <stop stop-color="#E879F9" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#E879F9" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1250 760) rotate(36) scale(540 410)">
+      <stop stop-color="#22D3EE" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1600" height="1100" fill="url(#bg)"/>
+  <ellipse cx="350" cy="260" rx="440" ry="360" fill="url(#glow1)"/>
+  <ellipse cx="1250" cy="760" rx="540" ry="410" fill="url(#glow2)"/>
+
+  <g opacity="0.2">
+    <path d="M0 760C180 700 330 720 500 785C690 860 860 875 1080 810C1280 752 1430 770 1600 845V1100H0V760Z" fill="white"/>
+    <path d="M0 840C160 790 330 806 520 872C720 944 892 960 1108 898C1295 844 1440 856 1600 920V1100H0V840Z" fill="white"/>
+  </g>
+
+  <g opacity="0.95">
+    <rect x="990" y="150" width="340" height="205" rx="18" fill="white" fill-opacity="0.08" stroke="white" stroke-opacity="0.2"/>
+    <circle cx="1050" cy="215" r="26" stroke="white" stroke-width="10" stroke-opacity="0.9"/>
+    <line x1="1069" y1="234" x2="1090" y2="256" stroke="white" stroke-width="10" stroke-linecap="round" stroke-opacity="0.9"/>
+    <rect x="1115" y="192" width="165" height="12" rx="6" fill="white" fill-opacity="0.9"/>
+    <rect x="1115" y="218" width="130" height="10" rx="5" fill="white" fill-opacity="0.55"/>
+    <rect x="1115" y="241" width="95" height="10" rx="5" fill="white" fill-opacity="0.4"/>
+    <rect x="1024" y="283" width="270" height="42" rx="10" fill="#22D3EE" fill-opacity="0.25"/>
+    <text x="1065" y="309" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="18" fill="white">Potential Match Found</text>
+  </g>
+
+  <g opacity="0.92">
+    <rect x="248" y="618" width="372" height="242" rx="22" fill="white" fill-opacity="0.1" stroke="white" stroke-opacity="0.24"/>
+    <rect x="288" y="670" width="112" height="112" rx="18" fill="#A78BFA" fill-opacity="0.35"/>
+    <rect x="420" y="672" width="164" height="16" rx="8" fill="white" fill-opacity="0.88"/>
+    <rect x="420" y="702" width="145" height="12" rx="6" fill="white" fill-opacity="0.56"/>
+    <rect x="420" y="725" width="120" height="12" rx="6" fill="white" fill-opacity="0.45"/>
+    <rect x="420" y="761" width="126" height="36" rx="10" fill="#E879F9" fill-opacity="0.28"/>
+    <text x="448" y="785" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="17" fill="white">Claim Item</text>
+  </g>
+
+  <g opacity="0.35" stroke="white">
+    <line x1="720" y1="230" x2="915" y2="310" stroke-width="3" stroke-dasharray="10 12"/>
+    <line x1="558" y1="533" x2="770" y2="405" stroke-width="3" stroke-dasharray="10 12"/>
+    <line x1="835" y1="620" x2="1022" y2="548" stroke-width="3" stroke-dasharray="10 12"/>
+  </g>
+</svg>
