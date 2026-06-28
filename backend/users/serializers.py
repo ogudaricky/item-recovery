@@ -17,10 +17,11 @@ class UserSerializer(serializers.ModelSerializer):
             "role",
             "department",
             "phone_number",
-            "campus_id",
-            "profile_image",
-            "password",
-        ]
+           "campus_id",
+           "profile_image",
+           "password",
+           "is_active",
+       ]
         extra_kwargs = {
             "email": {"required": True},
             "username": {"required": True},

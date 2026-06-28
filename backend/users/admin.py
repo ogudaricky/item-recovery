@@ -5,6 +5,8 @@ from .models import User
 @admin.register(User)
 class UserAdmin(DjangoUserAdmin):
     model = User
+    if hasattr(admin, "ShowFacets"):
+        show_facets = admin.ShowFacets.ALWAYS
     list_display = (
         "username",
         "email",

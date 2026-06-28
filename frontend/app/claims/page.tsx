@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState, type SyntheticEvent } from "react";
 
 import { AppSidebar } from "@/components/layout/top-nav";
+import { getCurrentUser } from "@/lib/auth";
 import { createClaim, listClaims, verifyClaim } from "@/lib/claims";
 import { listMatches } from "@/lib/matches";
+import type { User } from "@/types/auth";
 import type { ItemClaim } from "@/types/claims";
 import type { ItemMatch } from "@/types/matches";
 
@@ -16,11 +18,13 @@ function formatDate(value: string | null): string {
 }
 
 export default function ClaimsPage() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [availableMatches, setAvailableMatches] = useState<ItemMatch[]>([]);
   const [selectedMatchId, setSelectedMatchId] = useState("");
   const [claims, setClaims] = useState<ItemClaim[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("Choose a possible match, then submit your claim.");
+  const canReviewClaims = currentUser?.role === "staff" || currentUser?.role === "admin";
 
   const selectedMatch = useMemo(
       () => availableMatches.find((match) => String(match.id) === selectedMatchId) ?? null,
@@ -34,11 +38,13 @@ export default function ClaimsPage() {
       setLoading(true);
       setMessage("Loading available possible matches and claims...");
       try {
-        const [matchesRows, claimsRows] = await Promise.all([
+        const [viewer, matchesRows, claimsRows] = await Promise.all([
+          getCurrentUser(),
           listMatches(),
           listClaims(),
         ]);
         if (!alive) return;
+        setCurrentUser(viewer);
         const pendingMatches = matchesRows.filter((row) => row.status === "pending");
         setAvailableMatches(pendingMatches);
         setClaims(claimsRows);
@@ -130,7 +136,10 @@ export default function ClaimsPage() {
           <header className="rounded-2xl border border-border/70 bg-card/80 p-5 shadow-sm backdrop-blur-sm">
             <h1 className="text-2xl font-semibold">Claims</h1>
             <p className="text-sm text-muted-foreground">
-              Submit ownership claims from available possible matches. Staff can approve or reject.
+              Submit ownership claims from available possible matches.
+              {canReviewClaims
+                ? " As staff, you can also approve or reject pending claims."
+                : " Claim review is done by staff/admin accounts."}
             </p>
           </header>
 
@@ -217,7 +226,7 @@ export default function ClaimsPage() {
                           <td className="py-2 pr-3">{claim.verified_by?.username ?? "-"}</td>
                           <td className="py-2 pr-3">{formatDate(claim.verified_at)}</td>
                           <td className="py-2">
-                            {claim.status === "pending" ? (
+                            {claim.status === "pending" && canReviewClaims ? (
                                 <div className="flex gap-2">
                                   <button
                                       type="button"
@@ -237,7 +246,11 @@ export default function ClaimsPage() {
                                   </button>
                                 </div>
                             ) : (
-                                <span className="text-xs text-muted-foreground">No actions</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {claim.status === "pending" && !canReviewClaims
+                                    ? "Awaiting staff review"
+                                    : "No actions"}
+                                </span>
                             )}
                           </td>
                         </tr>
