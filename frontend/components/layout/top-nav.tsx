@@ -29,6 +29,13 @@ const NAV = [
   { href: "/notifications",label: "Notifications",     Icon: Bell },
 ] as const;
 
+const ADMIN_NAV = [
+  { href: "/admin",        label: "Admin Home",       Icon: LayoutDashboard },
+  { href: "/admin/users",  label: "Users",            Icon: PackageCheck },
+  { href: "/admin/items",  label: "Items",            Icon: PackageX },
+  { href: "/admin/reports",label: "Reports",          Icon: FileCheck },
+] as const;
+
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
 interface AppSidebarProps {
@@ -170,7 +177,7 @@ export function AppSidebar({
             </p>
 
             <div className="flex flex-col gap-px">
-              {NAV.map(({ href, label, Icon }, i) => {
+              {(pathname?.startsWith("/admin") ? ADMIN_NAV : NAV).map(({ href, label, Icon }, i) => {
                 const active = pathname === href;
                 return (
                     <Link

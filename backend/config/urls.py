@@ -26,6 +26,7 @@ urlpatterns = [
     path("api/", include("matches.urls")),
     path("api/", include("claims.urls")),
     path("api/", include("notifications.urls")),
+    path("api/", include("reports.urls")),
     path("api-auth/", include("rest_framework.urls")),
 ]
 

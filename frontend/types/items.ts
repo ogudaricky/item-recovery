@@ -24,6 +24,13 @@ export interface LostItemCreatePayload {
   image?: File | null;
 }
 
+export interface PaginatedLostItemResponse {
+  results: LostItem[];
+  count: number;
+  next: string | null;
+  previous: string | null;
+}
+
 export interface FoundItem {
   id: number;
   user: User;
@@ -46,4 +53,11 @@ export interface FoundItemCreatePayload {
   date_found: string;
   location: string;
   image?: File | null;
+}
+
+export interface PaginatedFoundItemResponse {
+  results: FoundItem[];
+  count: number;
+  next: string | null;
+  previous: string | null;
 }

@@ -29,10 +29,10 @@ export default function DashboardPage() {
         setMessage(`Welcome back, ${current.username}.`);
         const lost = await listLostItems();
         if (!alive) return;
-        setLostCount(lost.length);
+        setLostCount(lost.count ?? lost.results.length);
         const found = await listFoundItems();
         if (!alive) return;
-        setFoundCount(found.length);
+        setFoundCount(found.count ?? found.results.length);
       } catch (error) {
         if (!alive) return;
         const text = error instanceof Error ? error.message : "Unknown error";

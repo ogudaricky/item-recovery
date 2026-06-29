@@ -7,66 +7,119 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
 import { getCurrentUser, logout } from "@/lib/auth";
-import { apiRequest } from "@/lib/api";
-import type { User } from "@/types/auth";
+import { listUsers, deleteUser, toggleUserStatus, updateUserRole } from "@/lib/users";
+import type { User, UserRole } from "@/types/auth";
+
+const roleLabels: Record<UserRole, string> = {
+  student: "Student",
+  staff: "Staff",
+  admin: "Admin",
+};
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busyUserIds, setBusyUserIds] = useState<number[]>([]);
 
   useEffect(() => {
-    loadCurrentUser();
-    loadUsers();
+    void loadAdminData();
   }, []);
 
-  const loadCurrentUser = async () => {
-    try {
-      const user = await getCurrentUser();
-      setCurrentUser(user);
-    } catch (error) {
-      console.error("Failed to load current user:", error);
-    }
-  };
-
-  const loadUsers = async () => {
+  const loadAdminData = async () => {
     setLoading(true);
+    setError(null);
+
     try {
-      const response = await apiRequest<User[]>("/api/users/");
-      setUsers(response);
-    } catch (error) {
-      console.error("Failed to load users:", error);
+      const [user, usersList] = await Promise.all([getCurrentUser(), listUsers()]);
+      setCurrentUser(user);
+      setUsers(usersList);
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : "Unable to load admin data.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRoleChange = async (userId: number, newRole: string) => {
+  const handleRoleChange = async (userId: number, newRole: UserRole) => {
+    if (busyUserIds.includes(userId)) return;
+    setBusyUserIds((prev) => [...prev, userId]);
+    setError(null);
+
     try {
-      await apiRequest<{ success: boolean }>(`/api/users/${userId}/`, {
-        method: "PATCH",
-        body: JSON.stringify({ role: newRole }),
-      });
-      await loadUsers(); // Refresh the list
-    } catch (error) {
-      console.error("Failed to update user role:", error);
-      alert("Failed to update user role. Please try again.");
+      const updatedUser = await updateUserRole(userId, newRole);
+      setUsers((prev) => prev.map((item) => (item.id === userId ? updatedUser : item)));
+    } catch (caught) {
+      console.error("Failed to update user role:", caught);
+      setError("Unable to update role. Please try again.");
+    } finally {
+      setBusyUserIds((prev) => prev.filter((id) => id !== userId));
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.last_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleToggleStatus = async (userId: number, isActive: boolean) => {
+    if (busyUserIds.includes(userId)) return;
+    setBusyUserIds((prev) => [...prev, userId]);
+    setError(null);
+
+    try {
+      const updatedUser = await toggleUserStatus(userId, isActive);
+      setUsers((prev) => prev.map((item) => (item.id === userId ? updatedUser : item)));
+    } catch (caught) {
+      console.error("Failed to update user status:", caught);
+      setError("Unable to update status. Please try again.");
+    } finally {
+      setBusyUserIds((prev) => prev.filter((id) => id !== userId));
+    }
+  };
+
+  const handleDeleteUser = async (userId: number) => {
+    if (!currentUser) return;
+    if (userId === currentUser.id) {
+      alert("You cannot delete your own account while signed in.");
+      return;
+    }
+
+    const target = users.find((user) => user.id === userId);
+    if (!target) return;
+
+    const confirmed = window.confirm(`Delete ${target.username}? This action cannot be undone.`);
+    if (!confirmed) return;
+
+    setBusyUserIds((prev) => [...prev, userId]);
+    setError(null);
+
+    try {
+      await deleteUser(userId);
+      setUsers((prev) => prev.filter((item) => item.id !== userId));
+    } catch (caught) {
+      console.error("Failed to delete user:", caught);
+      setError("Unable to delete user. Please try again.");
+    } finally {
+      setBusyUserIds((prev) => prev.filter((id) => id !== userId));
+    }
+  };
+
+  const filteredUsers = users.filter((user) => {
+    const term = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      term === "" ||
+      user.username.toLowerCase().includes(term) ||
+      user.email.toLowerCase().includes(term) ||
+      user.first_name.toLowerCase().includes(term) ||
+      user.last_name.toLowerCase().includes(term);
+
+    return matchesSearch;
+  });
 
   if (loading) {
     return (
       <div className="min-h-[80vh] flex flex-col items-center justify-center px-6 py-10">
         <div className="relative mx-auto flex min-h-[80vh] w-full max-w-5xl items-center justify-center text-sm text-muted-foreground">
-          Loading users...
+          Loading admin users...
         </div>
       </div>
     );
@@ -102,40 +155,45 @@ export default function AdminUsersPage() {
         {/* Sidebar (reuse from admin page) */}
         {/* TODO: Could extract this to a shared component */}
 
-        {/* Page header */}
-        <div className="flex w-full items-center justify-between">
-          <h1 className="text-2xl font-semibold">User Management</h1>
-          <div className="space-x-4">
-            <Button
-              asChild
-              href="/admin"
-              variant="outline"
-            >
-              Back to Dashboard
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">User Management</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Manage user roles, active status, and remove outdated accounts.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="sm">
+              <a href="/admin">Back to Dashboard</a>
             </Button>
             <Button
+              size="sm"
+              variant="outline"
               onClick={async () => {
                 await logout();
                 window.location.href = "/login";
               }}
-              variant="outline"
             >
               Logout
             </Button>
           </div>
         </div>
 
-        {/* Search and filters */}
-        <div className="mb-6">
-          <div className="flex gap-4">
-            <Input
-              placeholder="Search users by name, email, or username..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1"
-            />
-          </div>
+        <div className="grid gap-4 sm:grid-cols-[1.5fr_1fr]">
+          <Input
+            placeholder="Search users by name, email, or username..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="min-w-0"
+          />
         </div>
+
+        {error ? (
+          <div className="rounded-2xl border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+            {error}
+          </div>
+        ) : null}
 
         {/* Users table */}
         <div className="rounded-2xl border border-border/70 bg-card/80 p-6 shadow-sm backdrop-blur-sm">
@@ -169,35 +227,22 @@ export default function AdminUsersPage() {
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm" className="w-full text-left">
-                            {user.role === "student" ? "Student" : user.role === "staff" ? "Staff" : "Admin"}
+                          <Button variant="outline" size="sm" className="w-full justify-between text-left">
+                            {roleLabels[user.role]}
                             <ChevronDown className="ml-2 h-3 w-3" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-48">
-                          {user.role !== "student" && (
-                            <DropdownMenuItem
-                              onSelect={() => handleRoleChange(user.id, "student")}
-                              className="flex justify-between items-center"
-                            >
-                              Student
-                            </DropdownMenuItem>
-                          )}
-                          {user.role !== "staff" && (
-                            <DropdownMenuItem
-                              onSelect={() => handleRoleChange(user.id, "staff")}
-                              className="flex justify-between items-center"
-                            >
-                              Staff
-                            </DropdownMenuItem>
-                          )}
-                          {user.role !== "admin" && (
-                            <DropdownMenuItem
-                              onSelect={() => handleRoleChange(user.id, "admin")}
-                              className="flex justify-between items-center"
-                            >
-                              Admin
-                            </DropdownMenuItem>
+                          {Object.entries(roleLabels).map(([roleKey, label]) =>
+                            roleKey !== user.role ? (
+                              <DropdownMenuItem
+                                key={roleKey}
+                                onSelect={() => handleRoleChange(user.id, roleKey as UserRole)}
+                                className="flex justify-between items-center"
+                              >
+                                {label}
+                              </DropdownMenuItem>
+                            ) : null,
                           )}
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -214,8 +259,23 @@ export default function AdminUsersPage() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
-                        {/* TODO: Add edit/delete buttons if needed */}
+                      <div className="flex flex-col gap-2">
+                        <Button
+                          size="sm"
+                          variant={user.is_active ? "secondary" : "default"}
+                          onClick={() => handleToggleStatus(user.id, !user.is_active)}
+                          disabled={busyUserIds.includes(user.id)}
+                        >
+                          {busyUserIds.includes(user.id) ? "Saving..." : user.is_active ? "Deactivate" : "Activate"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteUser(user.id)}
+                          disabled={user.id === currentUser?.id || busyUserIds.includes(user.id)}
+                        >
+                          Delete
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
